@@ -1,0 +1,65 @@
+body{
+margin:0;
+font-family:Segoe UI;
+background:#f2f4f8;
+}
+
+.sidebar{
+width:220px;
+height:100vh;
+background:#0b3c78;
+position:fixed;
+color:white;
+padding-top:20px;
+}
+
+.sidebar h2{
+text-align:center;
+margin-bottom:30px;
+}
+
+.sidebar a{
+display:block;
+color:white;
+padding:12px 20px;
+text-decoration:none;
+}
+
+.sidebar a:hover{
+background:#1f5aa6;
+}
+
+.main{
+margin-left:220px;
+padding:20px;
+}
+
+.topbar{
+background:white;
+padding:15px;
+display:flex;
+justify-content:space-between;
+border-radius:6px;
+margin-bottom:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+width:200px;
+display:inline-block;
+margin-right:15px;
+box-shadow:0 0 5px #ccc;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #ddd;
+}
