@@ -1,1 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
 
+<h2>Chat Window</h2>
+
+<div style="background:white;padding:15px;border-radius:8px;max-height:400px;overflow-y:auto">
+
+{% for c in chats %}
+
+{% if c.sender==session['user'] %}
+<div style="text-align:right;margin-bottom:10px">
+<b>You:</b> {{c.message}}
+</div>
+{% else %}
+<div style="text-align:left;margin-bottom:10px">
+<b>{{c.sender}}:</b> {{c.message}}
+</div>
+{% endif %}
+
+{% endfor %}
+
+</div>
+
+{% endblock %}
