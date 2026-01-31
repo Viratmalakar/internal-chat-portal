@@ -1,65 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>BFIL Internal Portal Login</title>
+<title>Internal Portal Login</title>
 
 <style>
 body{
-margin:0;
-padding:0;
 background:#f3f6fb;
-font-family:Segoe UI, Arial;
+font-family:Segoe UI;
 }
 
-.container{
-width:100%;
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-}
-
-.login-box{
+.box{
 width:360px;
 background:white;
+margin:120px auto;
 padding:40px;
 border-radius:10px;
 box-shadow:0 5px 25px rgba(0,0,0,0.2);
 text-align:center;
 }
 
-.login-box h2{
-margin-bottom:10px;
-color:#1f2937;
-}
-
-.login-box p{
-color:#6b7280;
-margin-bottom:25px;
-}
-
-input{
+select,input,button{
 width:100%;
 padding:12px;
-margin-bottom:15px;
+margin-top:12px;
 border-radius:6px;
 border:1px solid #cbd5e1;
-font-size:14px;
 }
 
 button{
-width:100%;
-padding:12px;
 background:#2563eb;
-border:none;
 color:white;
+border:none;
 font-size:15px;
-border-radius:6px;
-cursor:pointer;
-}
-
-button:hover{
-background:#1e40af;
 }
 
 .error{
@@ -72,23 +44,31 @@ margin-top:10px;
 
 <body>
 
-<div class="container">
-  <div class="login-box">
+<div class="box">
 
-    <h2>BFIL Internal Portal</h2>
-    <p>Login with Employee ID</p>
+<h2>Internal Communication Portal</h2>
 
-    <form method="post">
-      <input type="text" name="emp" placeholder="Employee ID" required>
-      <input type="password" name="pwd" placeholder="Password" required>
-      <button type="submit">Login</button>
-    </form>
+<form method="post">
 
-    {% if error %}
-    <div class="error">{{error}}</div>
-    {% endif %}
+<select name="campaign" required>
+<option value="">Select Campaign Type</option>
+<option>Inbound</option>
+<option>Outbound</option>
+<option>Support Staff</option>
+</select>
 
-  </div>
+<input type="text" name="loginid" placeholder="Login ID / Agent Name" required>
+
+<input type="password" name="password" placeholder="Password" required>
+
+<button type="submit">Login</button>
+
+</form>
+
+{% if error %}
+<div class="error">{{error}}</div>
+{% endif %}
+
 </div>
 
 </body>
