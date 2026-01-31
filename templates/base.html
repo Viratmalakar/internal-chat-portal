@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>BFIL Internal Communication Portal</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>BFIL</h2>
+  <a href="/dashboard">Dashboard</a>
+  <a href="/compose">Compose</a>
+  <a href="/add_user">Manage Agents</a>
+  <a href="/download">Reports</a>
+  <a href="/logout">Logout</a>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <span>Internal Communication Portal</span>
+    <span class="user">Welcome, {{session['user']}}</span>
+  </div>
+
+  {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>
