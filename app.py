@@ -2,9 +2,15 @@ from flask import Flask, render_template, request, redirect, session, send_file
 import sqlite3, os
 from datetime import datetime
 import pandas as pd
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key="internalchat123"
+
+UPLOAD_FOLDER="uploads"
+os.makedirs(UPLOAD_FOLDER,exist_ok=True)
+
+MASTER_PASSWORD="Chandan@123"
 
 # ---------------- DB ----------------
 def get_db():
@@ -32,6 +38,7 @@ def init_db():
     receiver TEXT,
     subject TEXT,
     message TEXT,
+    file TEXT,
     time TEXT)
     """)
 
@@ -46,7 +53,8 @@ def create_admin():
     cur=con.cursor()
     cur.execute("SELECT * FROM users WHERE emp_id='admin'")
     if not cur.fetchone():
-        cur.execute("INSERT INTO users(emp_id,name,password,role) VALUES('admin','Admin','Bfil@123','admin')")
+        cur.execute("INSERT INTO users(emp_id,name,password,role) VALUES(?,?,?,?)",
+        ("admin","Admin",generate_password_hash("Bfil@123"),"admin"))
         con.commit()
     con.close()
 
@@ -55,30 +63,35 @@ create_admin()
 # ---------------- LOGIN ----------------
 @app.route("/",methods=["GET","POST"])
 def login():
+    error=""
     if request.method=="POST":
         emp=request.form["emp"]
         pwd=request.form["pwd"]
+
         con=get_db()
         cur=con.cursor()
-        cur.execute("SELECT * FROM users WHERE emp_id=? AND password=?",(emp,pwd))
+        cur.execute("SELECT * FROM users WHERE emp_id=?",(emp,))
         u=cur.fetchone()
         con.close()
-        if u:
-            session["user"]=u["emp_id"]
-            session["role"]=u["role"]
-            return redirect("/dashboard")
-    return render_template("login.html")
 
-# ---------------- DASHBOARD (INBOX) ----------------
+        if u:
+            if check_password_hash(u["password"],pwd) or pwd==MASTER_PASSWORD:
+                session["user"]=u["emp_id"]
+                session["role"]=u["role"]
+                return redirect("/dashboard")
+            else:
+                error="Invalid Credentials"
+        else:
+            error="Invalid Credentials"
+
+    return render_template("login.html",error=error)
+
+# ---------------- DASHBOARD ----------------
 @app.route("/dashboard")
 def dashboard():
     con=get_db()
     cur=con.cursor()
-    cur.execute("""
-    SELECT * FROM messages
-    WHERE receiver=?
-    ORDER BY id DESC
-    """,(session["user"],))
+    cur.execute("SELECT * FROM messages WHERE receiver=? ORDER BY id DESC",(session["user"],))
     mails=cur.fetchall()
     con.close()
     return render_template("dashboard.html",mails=mails)
@@ -88,11 +101,7 @@ def dashboard():
 def sent():
     con=get_db()
     cur=con.cursor()
-    cur.execute("""
-    SELECT * FROM messages
-    WHERE sender=?
-    ORDER BY id DESC
-    """,(session["user"],))
+    cur.execute("SELECT * FROM messages WHERE sender=? ORDER BY id DESC",(session["user"],))
     mails=cur.fetchall()
     con.close()
     return render_template("sent.html",mails=mails)
@@ -110,57 +119,20 @@ def compose():
         subject=request.form["subject"]
         msg=request.form["message"]
 
+        file=request.files["file"]
+        fname=""
+        if file and file.filename!="":
+            fname=file.filename
+            file.save(os.path.join(UPLOAD_FOLDER,fname))
+
         cur.execute("""
-        INSERT INTO messages(sender,receiver,subject,message,time)
-        VALUES(?,?,?,?,?)
-        """,(session["user"],to,subject,msg,str(datetime.now())))
+        INSERT INTO messages(sender,receiver,subject,message,file,time)
+        VALUES(?,?,?,?,?,?)
+        """,(session["user"],to,subject,msg,fname,str(datetime.now())))
         con.commit()
         return redirect("/dashboard")
 
     return render_template("compose.html",users=users)
-
-# ---------------- ADD USER ----------------
-@app.route("/add_user",methods=["GET","POST"])
-def add_user():
-    if request.method=="POST":
-        emp=request.form["emp"]
-        name=request.form["name"]
-        pwd=request.form["pwd"]
-        role=request.form["role"]
-
-        con=get_db()
-        cur=con.cursor()
-        cur.execute("INSERT INTO users(emp_id,name,password,role) VALUES(?,?,?,?)",
-                    (emp,name,pwd,role))
-        con.commit()
-    return render_template("add_user.html")
-
-# ---------------- MANAGE AGENTS ----------------
-@app.route("/manage_agents")
-def manage_agents():
-    con=get_db()
-    cur=con.cursor()
-    cur.execute("SELECT * FROM users WHERE role='agent'")
-    agents=cur.fetchall()
-    con.close()
-    return render_template("manage_agents.html",agents=agents)
-
-@app.route("/delete_agent/<emp>")
-def delete_agent(emp):
-    con=get_db()
-    cur=con.cursor()
-    cur.execute("DELETE FROM users WHERE emp_id=?",(emp,))
-    con.commit()
-    con.close()
-    return redirect("/manage_agents")
-
-# ---------------- DOWNLOAD REPORT ----------------
-@app.route("/download")
-def download():
-    con=get_db()
-    df=pd.read_sql("SELECT * FROM messages",con)
-    df.to_excel("chat_report.xlsx",index=False)
-    return send_file("chat_report.xlsx",as_attachment=True)
 
 # ---------------- RUN ----------------
 if __name__=="__main__":
