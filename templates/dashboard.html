@@ -1,24 +1,29 @@
-<a href="/compose">Compose</a> |
-<a href="/download">Download</a> |
-<a href="/add_user">Create User</a>
-<hr>
+{% extends "base.html" %}
 
-<table border="1">
+{% block content %}
+
+<h2>Dashboard</h2>
+
+<div class="card">Total Agents<br><b>--</b></div>
+<div class="card">Total Messages<br><b>--</b></div>
+<div class="card">Chats Exported<br><b>--</b></div>
+
+<h3>Inbox</h3>
+
+<table>
 <tr>
-<th>From</th><th>To</th><th>Subject</th><th>Message</th><th>File</th>
+<th>From</th>
+<th>Subject</th>
+<th>Message</th>
 </tr>
 
 {% for m in mails %}
 <tr>
-<td>{{m.sender_name}} ({{m.sender}})</td>
-<td>{{m.receiver_name}} ({{m.receiver}})</td>
+<td>{{m.sender}}</td>
 <td>{{m.subject}}</td>
 <td>{{m.message}}</td>
-<td>
-{% if m.file %}
-<a href="/uploads/{{m.file}}">Download</a>
-{% endif %}
-</td>
 </tr>
 {% endfor %}
 </table>
+
+{% endblock %}
