@@ -1,15 +1,28 @@
 {% extends "base.html" %}
 {% block content %}
+
 <h2>Inbox</h2>
 
 <table>
-<tr><th>From</th><th>Subject</th><th>Message</th></tr>
+<tr>
+<th>From</th>
+<th>Subject</th>
+<th>Message</th>
+<th>File</th>
+</tr>
+
 {% for m in mails %}
 <tr>
 <td>{{m.sender}}</td>
 <td>{{m.subject}}</td>
 <td>{{m.message}}</td>
+<td>
+{% if m.file %}
+<a href="/uploads/{{m.file}}">Download</a>
+{% endif %}
+</td>
 </tr>
 {% endfor %}
 </table>
+
 {% endblock %}
