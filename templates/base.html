@@ -11,15 +11,18 @@
 <a href="/dashboard">Inbox</a>
 <a href="/sent">Sent</a>
 <a href="/compose">Compose</a>
-<a href="/manage_agents">Manage Agents</a>
-<a href="/add_user">Create User</a>
-<a href="/download">Reports</a>
 </div>
 
 <div class="main">
 <div class="topbar">
 <span>Internal Communication Portal</span>
-<span>{{session['user']}}</span>
+
+<span style="color:red;">
+{% if unread and unread>0 %}
+🔔 {{unread}} New
+{% endif %}
+</span>
+
 </div>
 
 {% block content %}{% endblock %}
