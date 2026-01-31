@@ -5,20 +5,30 @@
 
 <table>
 <tr>
+<th>Status</th>
 <th>From</th>
 <th>Subject</th>
 <th>Message</th>
-<th>File</th>
+<th>Action</th>
 </tr>
 
 {% for m in mails %}
 <tr>
+<td>
+{% if m.is_read==0 %}
+<b style="color:red">Unread</b>
+{% else %}
+Read
+{% endif %}
+</td>
+
 <td>{{m.sender}}</td>
 <td>{{m.subject}}</td>
 <td>{{m.message}}</td>
+
 <td>
-{% if m.file %}
-<a href="/uploads/{{m.file}}">Download</a>
+{% if m.is_read==0 %}
+<a href="/read/{{m.id}}">Open</a>
 {% endif %}
 </td>
 </tr>
