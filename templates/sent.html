@@ -8,7 +8,6 @@
 <th>To</th>
 <th>Subject</th>
 <th>Message</th>
-<th>File</th>
 </tr>
 
 {% for m in mails %}
@@ -16,11 +15,6 @@
 <td>{{m.receiver}}</td>
 <td>{{m.subject}}</td>
 <td>{{m.message}}</td>
-<td>
-{% if m.file %}
-<a href="/uploads/{{m.file}}">Download</a>
-{% endif %}
-</td>
 </tr>
 {% endfor %}
 </table>
