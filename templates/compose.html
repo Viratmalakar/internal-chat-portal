@@ -1,1 +1,33 @@
-<form method='post' enctype='multipart/form-data'>To<input name='to'><br>CC<input name='cc'><br>Subject<input name='subject'><br><textarea name='message'></textarea><br><input type='file' name='file'><br><button>Send</button></form>
+<h2>Compose</h2>
+<form method="post" enctype="multipart/form-data">
+
+To:
+<select name="to">
+{% for u in users %}
+<option value="{{u.emp_id}}">
+{{u.name}} ({{u.emp_id}})
+</option>
+{% endfor %}
+</select><br>
+
+CC:
+<select name="cc">
+<option value="">None</option>
+{% for u in users %}
+<option value="{{u.emp_id}}">
+{{u.name}} ({{u.emp_id}})
+</option>
+{% endfor %}
+</select><br>
+
+Subject:<br>
+<input name="subject"><br>
+
+Message:<br>
+<textarea name="message"></textarea><br>
+
+File:<br>
+<input type="file" name="file"><br>
+
+<button>Send</button>
+</form>
