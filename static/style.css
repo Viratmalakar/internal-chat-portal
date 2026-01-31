@@ -1,31 +1,181 @@
-body{margin:0;font-family:Segoe UI;background:#f2f4f8}
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body{
+background:#f4f6fb;
+}
+
+/* ================= SIDEBAR ================= */
 
 .sidebar{
-width:220px;height:100vh;
-background:#0b3c78;
-position:fixed;color:white;
+width:230px;
+height:100vh;
+background:#1f2937;
+position:fixed;
+top:0;
+left:0;
+color:#fff;
 padding-top:20px;
 }
 
-.sidebar h2{text-align:center}
-.sidebar a{
-display:block;color:white;
-padding:12px;text-decoration:none
+.sidebar h2{
+text-align:center;
+margin-bottom:30px;
+letter-spacing:1px;
 }
-.sidebar a:hover{background:#1f5aa6}
 
-.main{margin-left:220px;padding:20px}
+.sidebar a{
+display:block;
+padding:14px 20px;
+color:#d1d5db;
+text-decoration:none;
+font-size:15px;
+transition:0.3s;
+}
+
+.sidebar a:hover{
+background:#374151;
+color:white;
+}
+
+/* ================= MAIN AREA ================= */
+
+.main{
+margin-left:230px;
+padding:25px;
+}
+
+/* ================= TOP BAR ================= */
 
 .topbar{
-background:white;padding:15px;
-display:flex;justify-content:space-between;
-margin-bottom:20px;border-radius:6px;
+background:white;
+padding:15px 20px;
+border-radius:8px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+margin-bottom:25px;
 }
 
-table{
-width:100%;background:white;
-border-collapse:collapse
+.topbar span{
+font-size:16px;
+font-weight:600;
 }
-th,td{
-padding:10px;border-bottom:1px solid #ddd
+
+/* ================= HEADINGS ================= */
+
+h2{
+margin-bottom:15px;
+color:#1f2937;
+}
+
+/* ================= TABLE ================= */
+
+table{
+width:100%;
+background:white;
+border-radius:8px;
+border-collapse:collapse;
+overflow:hidden;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+th{
+background:#2563eb;
+color:white;
+text-align:left;
+padding:12px;
+font-size:14px;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #e5e7eb;
+font-size:14px;
+}
+
+tr:hover{
+background:#f1f5ff;
+}
+
+/* ================= INPUTS ================= */
+
+input, select, textarea{
+width:100%;
+padding:10px;
+margin-top:8px;
+margin-bottom:15px;
+border-radius:6px;
+border:1px solid #cbd5e1;
+font-size:14px;
+}
+
+textarea{
+height:120px;
+resize:none;
+}
+
+/* ================= BUTTON ================= */
+
+button{
+background:#2563eb;
+color:white;
+padding:10px 20px;
+border:none;
+border-radius:6px;
+font-size:14px;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#1e40af;
+}
+
+/* ================= SEARCH BOX ================= */
+
+#s{
+width:250px;
+margin-bottom:15px;
+}
+
+/* ================= LINKS ================= */
+
+a{
+color:#2563eb;
+text-decoration:none;
+font-weight:500;
+}
+
+a:hover{
+text-decoration:underline;
+}
+
+/* ================= STATUS TAGS ================= */
+
+.unread{
+color:#dc2626;
+font-weight:bold;
+}
+
+.read{
+color:#16a34a;
+}
+
+/* ================= CARDS (Future Use) ================= */
+
+.card{
+background:white;
+padding:20px;
+border-radius:8px;
+width:220px;
+display:inline-block;
+margin-right:15px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+text-align:center;
 }
