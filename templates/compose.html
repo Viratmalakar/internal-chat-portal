@@ -1,17 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
+
 <h2>Compose</h2>
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
+
 <select name="to">
 {% for u in users %}
-<option value="{{u.emp_id}}">{{u.name}} ({{u.emp_id}})</option>
+<option value="{{u.emp_id}}">
+{{u.name}} ({{u.emp_id}})
+</option>
 {% endfor %}
 </select><br>
 
 <input name="subject" placeholder="Subject"><br>
+
 <textarea name="message"></textarea><br>
+
+Attach File:<br>
+<input type="file" name="file"><br><br>
 
 <button>Send</button>
 </form>
+
 {% endblock %}
