@@ -1,1 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Sent</h2>
+
+<table>
+<tr><th>To</th><th>Subject</th><th>Message</th></tr>
+{% for m in mails %}
+<tr>
+<td>{{m.receiver}}</td>
+<td>{{m.subject}}</td>
+<td>{{m.message}}</td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}
 
