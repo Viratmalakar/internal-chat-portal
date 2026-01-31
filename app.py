@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, send_file
 import sqlite3, os
 from datetime import datetime
-import pandas as pd
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
@@ -31,6 +30,7 @@ def init_db():
     role TEXT)
     """)
 
+    # 🔥 added is_read column
     cur.execute("""
     CREATE TABLE IF NOT EXISTS messages(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,6 +39,7 @@ def init_db():
     subject TEXT,
     message TEXT,
     file TEXT,
+    is_read INTEGER DEFAULT 0,
     time TEXT)
     """)
 
@@ -53,7 +54,8 @@ def create_admin():
     cur=con.cursor()
     cur.execute("SELECT * FROM users WHERE emp_id='admin'")
     if not cur.fetchone():
-        cur.execute("INSERT INTO users(emp_id,name,password,role) VALUES(?,?,?,?)",
+        cur.execute(
+        "INSERT INTO users(emp_id,name,password,role) VALUES(?,?,?,?)",
         ("admin","Admin",generate_password_hash("Bfil@123"),"admin"))
         con.commit()
     con.close()
@@ -86,22 +88,45 @@ def login():
 
     return render_template("login.html",error=error)
 
-# ---------------- DASHBOARD ----------------
+# ---------------- DASHBOARD (INBOX) ----------------
 @app.route("/dashboard")
 def dashboard():
     con=get_db()
     cur=con.cursor()
-    cur.execute("SELECT * FROM messages WHERE receiver=? ORDER BY id DESC",(session["user"],))
+
+    cur.execute("""
+    SELECT * FROM messages
+    WHERE receiver=?
+    ORDER BY id DESC
+    """,(session["user"],))
+
     mails=cur.fetchall()
+
+    # count unread
+    cur.execute("SELECT COUNT(*) FROM messages WHERE receiver=? AND is_read=0",
+                (session["user"],))
+    unread=cur.fetchone()[0]
+
     con.close()
-    return render_template("dashboard.html",mails=mails)
+    return render_template("dashboard.html",mails=mails,unread=unread)
+
+# ---------------- MARK AS READ ----------------
+@app.route("/read/<mid>")
+def mark_read(mid):
+    con=get_db()
+    cur=con.cursor()
+    cur.execute("UPDATE messages SET is_read=1 WHERE id=?",(mid,))
+    con.commit()
+    con.close()
+    return redirect("/dashboard")
 
 # ---------------- SENT ----------------
 @app.route("/sent")
 def sent():
     con=get_db()
     cur=con.cursor()
-    cur.execute("SELECT * FROM messages WHERE sender=? ORDER BY id DESC",(session["user"],))
+    cur.execute("SELECT * FROM messages WHERE sender=? ORDER BY id DESC",
+                (session["user"],))
     mails=cur.fetchall()
     con.close()
     return render_template("sent.html",mails=mails)
@@ -119,16 +144,10 @@ def compose():
         subject=request.form["subject"]
         msg=request.form["message"]
 
-        file=request.files["file"]
-        fname=""
-        if file and file.filename!="":
-            fname=file.filename
-            file.save(os.path.join(UPLOAD_FOLDER,fname))
-
         cur.execute("""
-        INSERT INTO messages(sender,receiver,subject,message,file,time)
-        VALUES(?,?,?,?,?,?)
-        """,(session["user"],to,subject,msg,fname,str(datetime.now())))
+        INSERT INTO messages(sender,receiver,subject,message,is_read,time)
+        VALUES(?,?,?,?,0,?)
+        """,(session["user"],to,subject,msg,str(datetime.now())))
         con.commit()
         return redirect("/dashboard")
 
