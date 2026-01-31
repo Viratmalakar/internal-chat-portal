@@ -1,22 +1,9 @@
 {% extends "base.html" %}
-
 {% block content %}
-
-<h2>Dashboard</h2>
-
-<div class="card">Total Agents<br><b>--</b></div>
-<div class="card">Total Messages<br><b>--</b></div>
-<div class="card">Chats Exported<br><b>--</b></div>
-
-<h3>Inbox</h3>
+<h2>Inbox</h2>
 
 <table>
-<tr>
-<th>From</th>
-<th>Subject</th>
-<th>Message</th>
-</tr>
-
+<tr><th>From</th><th>Subject</th><th>Message</th></tr>
 {% for m in mails %}
 <tr>
 <td>{{m.sender}}</td>
@@ -25,5 +12,4 @@
 </tr>
 {% endfor %}
 </table>
-
 {% endblock %}
