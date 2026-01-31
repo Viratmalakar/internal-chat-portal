@@ -2,22 +2,30 @@
 <html>
 <head>
 <title>BFIL Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
 
-<div class="sidebar">
+<div class="menu-btn" onclick="toggleMenu()">☰</div>
+
+<div class="sidebar" id="sidebar">
 <h2>BFIL</h2>
-<a href="/dashboard">Inbox</a>
-<a href="/sent">Sent</a>
-<a href="/compose">Compose</a>
+
+<a href="/dashboard">📥 Inbox</a>
+<a href="/sent">📤 Sent</a>
+<a href="/compose">✍ Compose</a>
+<a href="/change_password">🔑 Change Password</a>
+<a href="/manage_agents">👥 Manage Agents</a>
+
 </div>
 
 <div class="main">
 <div class="topbar">
 <span>Internal Communication Portal</span>
 
-<span style="color:red;">
+<span class="notify">
 {% if unread and unread>0 %}
 🔔 {{unread}} New
 {% endif %}
@@ -27,6 +35,12 @@
 
 {% block content %}{% endblock %}
 </div>
+
+<script>
+function toggleMenu(){
+ document.getElementById("sidebar").classList.toggle("show");
+}
+</script>
 
 </body>
 </html>
