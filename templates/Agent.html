@@ -1,1 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Manage Agents</h2>
+
+<input id="s" placeholder="Search" onkeyup="f()">
+
+<table id="t">
+<tr><th>ID</th><th>Name</th><th>Action</th></tr>
+{% for a in agents %}
+<tr>
+<td>{{a.emp_id}}</td>
+<td>{{a.name}}</td>
+<td><a href="/delete_agent/{{a.emp_id}}">Delete</a></td>
+</tr>
+{% endfor %}
+</table>
+
+<script>
+function f(){
+let v=document.getElementById("s").value.toLowerCase();
+let r=document.querySelectorAll("#t tr");
+r.forEach((x,i)=>{
+if(i==0)return;
+x.style.display=x.innerText.toLowerCase().includes(v)?"":"none";
+});
+}
+</script>
+{% endblock %}
 
