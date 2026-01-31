@@ -1,1 +1,24 @@
-<a href='/compose'>Compose</a> | <a href='/download'>Download</a> | <a href='/add_user'>Create User</a><table border='1'>{% for m in mails %}<tr><td>{{m.sender}}</td><td>{{m.subject}}</td></tr>{% endfor %}</table>
+<a href="/compose">Compose</a> |
+<a href="/download">Download</a> |
+<a href="/add_user">Create User</a>
+<hr>
+
+<table border="1">
+<tr>
+<th>From</th><th>To</th><th>Subject</th><th>Message</th><th>File</th>
+</tr>
+
+{% for m in mails %}
+<tr>
+<td>{{m.sender_name}} ({{m.sender}})</td>
+<td>{{m.receiver_name}} ({{m.receiver}})</td>
+<td>{{m.subject}}</td>
+<td>{{m.message}}</td>
+<td>
+{% if m.file %}
+<a href="/uploads/{{m.file}}">Download</a>
+{% endif %}
+</td>
+</tr>
+{% endfor %}
+</table>
