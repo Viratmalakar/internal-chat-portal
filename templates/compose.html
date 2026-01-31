@@ -1,33 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
 <h2>Compose</h2>
-<form method="post" enctype="multipart/form-data">
 
-To:
+<form method="post">
 <select name="to">
 {% for u in users %}
-<option value="{{u.emp_id}}">
-{{u.name}} ({{u.emp_id}})
-</option>
+<option value="{{u.emp_id}}">{{u.name}} ({{u.emp_id}})</option>
 {% endfor %}
 </select><br>
 
-CC:
-<select name="cc">
-<option value="">None</option>
-{% for u in users %}
-<option value="{{u.emp_id}}">
-{{u.name}} ({{u.emp_id}})
-</option>
-{% endfor %}
-</select><br>
-
-Subject:<br>
-<input name="subject"><br>
-
-Message:<br>
+<input name="subject" placeholder="Subject"><br>
 <textarea name="message"></textarea><br>
-
-File:<br>
-<input type="file" name="file"><br>
 
 <button>Send</button>
 </form>
+{% endblock %}
