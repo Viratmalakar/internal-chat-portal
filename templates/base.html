@@ -9,10 +9,10 @@
 <div class="sidebar">
 <h2>PORTAL</h2>
 
-<a href="/dashboard">Dashboard</a>
+<a href="/dashboard">My Groups</a>
 
 {% if session['role']=="admin" %}
-<a href="/manage_users">Manage Users</a>
+<a href="/groups">Manage Groups</a>
 {% endif %}
 
 <a href="/logout">Logout</a>
@@ -21,8 +21,7 @@
 <div class="main">
 
 <div class="topbar">
-Welcome {{session['name']}} |
-Role: {{session['role']}}
+Welcome {{session['name']}} | {{session['role']}}
 </div>
 
 {% block content %}{% endblock %}
