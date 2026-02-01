@@ -1,32 +1,27 @@
 from flask import Flask, render_template, request, redirect, session
-import sqlite3
-from datetime import datetime
-import os
+import sqlite3, os
 
 app = Flask(__name__)
-app.secret_key="internalchat123"
-
-AGENT_PASS="1962"
-SUPPORT_PASS="1122"
+app.secret_key = "internalchat123"
 
 # ---------------- DB ----------------
 def get_db():
-    con=sqlite3.connect("database.db")
-    con.row_factory=sqlite3.Row
+    con = sqlite3.connect("database.db")
+    con.row_factory = sqlite3.Row
     return con
 
 def init_db():
-    con=get_db()
-    cur=con.cursor()
+    con = get_db()
+    cur = con.cursor()
 
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS messages(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    sender TEXT,
-    receiver TEXT,
-    subject TEXT,
-    message TEXT,
-    time TEXT)
+    CREATE TABLE IF NOT EXISTS users(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        emp_id TEXT UNIQUE,
+        name TEXT,
+        password TEXT,
+        role TEXT
+    )
     """)
 
     con.commit()
@@ -34,97 +29,92 @@ def init_db():
 
 init_db()
 
+# -------- CREATE FIRST ADMIN IF NOT EXIST --------
+def create_admin():
+    con = get_db()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM users WHERE role='admin'")
+    if not cur.fetchone():
+        cur.execute("""
+        INSERT INTO users(emp_id,name,password,role)
+        VALUES('admin','System Admin','1234','admin')
+        """)
+        con.commit()
+    con.close()
+
+create_admin()
+
 # ---------------- LOGIN ----------------
-@app.route("/",methods=["GET","POST"])
+@app.route("/", methods=["GET","POST"])
 def login():
     error=""
+
     if request.method=="POST":
-        campaign=request.form["campaign"]
-        uid=request.form["loginid"]
-        pwd=request.form["password"]
+        emp=request.form["emp"]
+        pwd=request.form["pwd"]
+        role=request.form["role"]
 
-        if campaign in ["Inbound","Outbound"] and pwd==AGENT_PASS:
-            session["user"]=uid
-            session["role"]="agent"
-            session["campaign"]=campaign
+        con=get_db()
+        cur=con.cursor()
+        cur.execute("""
+        SELECT * FROM users
+        WHERE emp_id=? AND password=? AND role=?
+        """,(emp,pwd,role))
+        user=cur.fetchone()
+        con.close()
+
+        if user:
+            session["emp_id"]=user["emp_id"]
+            session["name"]=user["name"]
+            session["role"]=user["role"]
             return redirect("/dashboard")
-
-        elif campaign=="Support Staff" and pwd==SUPPORT_PASS:
-            session["user"]="Support"
-            session["role"]="support"
-            session["campaign"]="Support"
-            return redirect("/dashboard")
-
         else:
-            error="Invalid Credentials"
+            error="Invalid ID / Password / Role"
 
     return render_template("login.html",error=error)
 
 # ---------------- DASHBOARD ----------------
 @app.route("/dashboard")
 def dashboard():
+    return render_template("dashboard.html")
+
+# ---------------- MANAGE USERS (ADMIN) ----------------
+@app.route("/manage_users",methods=["GET","POST"])
+def manage_users():
+
+    if session.get("role")!="admin":
+        return "Unauthorized"
+
     con=get_db()
     cur=con.cursor()
-    cur.execute("SELECT * FROM messages WHERE receiver=? ORDER BY id DESC",
-                (session["user"],))
-    mails=cur.fetchall()
-    con.close()
-    return render_template("dashboard.html",mails=mails)
-
-# ---------------- COMPOSE ----------------
-@app.route("/compose",methods=["GET","POST"])
-def compose():
 
     if request.method=="POST":
-        to_campaign=request.form["to_campaign"]
-        subject=request.form["subject"]
-        msg=request.form["message"]
+        emp=request.form["emp"]
+        name=request.form["name"]
+        pwd=request.form["pwd"]
+        role=request.form["role"]
 
-        con=get_db()
-        cur=con.cursor()
-
-        # ===== SUPPORT SENDING =====
-        if session["role"]=="support":
-
-            if to_campaign=="Inbound":
-                targets=["Inbound","Support"]
-
-            elif to_campaign=="Outbound":
-                targets=["Outbound","Support"]
-
-            for r in targets:
-                cur.execute("""
-                INSERT INTO messages(sender,receiver,subject,message,time)
-                VALUES(?,?,?,?,?)
-                """,(session["user"],r,subject,msg,str(datetime.now())))
-
-        # ===== AGENT SENDING =====
-        else:
-            # goes to support AND agent's own campaign
-            targets=["Support",session["campaign"]]
-
-            for r in targets:
-                cur.execute("""
-                INSERT INTO messages(sender,receiver,subject,message,time)
-                VALUES(?,?,?,?,?)
-                """,(session["user"],r,subject,msg,str(datetime.now())))
-
+        cur.execute("""
+        INSERT INTO users(emp_id,name,password,role)
+        VALUES(?,?,?,?)
+        """,(emp,name,pwd,role))
         con.commit()
-        con.close()
-        return redirect("/dashboard")
 
-    return render_template("compose.html")
+    cur.execute("SELECT * FROM users")
+    users=cur.fetchall()
+    con.close()
 
-# ---------------- SENT ----------------
-@app.route("/sent")
-def sent():
+    return render_template("manage_users.html",users=users)
+
+# ---------------- CHANGE ROLE ----------------
+@app.route("/change_role/<uid>/<role>")
+def change_role(uid,role):
     con=get_db()
     cur=con.cursor()
-    cur.execute("SELECT * FROM messages WHERE sender=? ORDER BY id DESC",
-                (session["user"],))
-    mails=cur.fetchall()
+    cur.execute("UPDATE users SET role=? WHERE emp_id=?",(role,uid))
+    con.commit()
     con.close()
-    return render_template("sent.html",mails=mails)
+    return redirect("/manage_users")
 
 # ---------------- LOGOUT ----------------
 @app.route("/logout")
