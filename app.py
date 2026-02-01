@@ -4,6 +4,8 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "internalchat123"
+
+ADMIN_PASSWORD = "1122"
 DEFAULT_PASSWORD = "1962"
 
 # ---------------- DATABASE ----------------
@@ -16,40 +18,32 @@ def init_db():
     con = get_db()
     cur = con.cursor()
 
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS users(
+    cur.execute("""CREATE TABLE IF NOT EXISTS users(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         emp_id TEXT UNIQUE,
         name TEXT,
         password TEXT,
         role TEXT
-    )
-    """)
+    )""")
 
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS groups(
+    cur.execute("""CREATE TABLE IF NOT EXISTS groups(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         group_name TEXT UNIQUE
-    )
-    """)
+    )""")
 
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS group_members(
+    cur.execute("""CREATE TABLE IF NOT EXISTS group_members(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         group_id INTEGER,
         emp_id TEXT
-    )
-    """)
+    )""")
 
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS group_messages(
+    cur.execute("""CREATE TABLE IF NOT EXISTS group_messages(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         group_id INTEGER,
         sender TEXT,
         message TEXT,
         time TEXT
-    )
-    """)
+    )""")
 
     con.commit()
     con.close()
@@ -62,92 +56,22 @@ def create_admin():
     cur = con.cursor()
     cur.execute("SELECT * FROM users WHERE emp_id='admin'")
     if not cur.fetchone():
-        cur.execute(
-            "INSERT INTO users(emp_id,name,password,role) VALUES(?,?,?,?)",
-            ("admin","System Admin",DEFAULT_PASSWORD,"admin")
-        )
+        cur.execute("""
+        INSERT INTO users(emp_id,name,password,role)
+        VALUES('admin','System Admin',?, 'admin')
+        """,(ADMIN_PASSWORD,))
         con.commit()
     con.close()
 
 create_admin()
 
-# ---------------- BULK AGENT CREATE ----------------
-def create_agents():
-    agents = [
-        ("160251","Rupali Vishwakarma","inbound"),
-        ("160312","Poonam Dwivedi","inbound"),
-        ("160386","Nafisa","inbound"),
-        ("160417","Summer Singh Ghosh","inbound"),
-        ("160431","Neha Jat","inbound"),
-        ("160432","Baldev Singh","inbound"),
-        ("160435","Pankaj Saket","inbound"),
-        ("160437","Dinesh Kumar Ahirwar","inbound"),
-        ("170010","Sanju Jatav","inbound"),
-        ("160366","Golu Yadav","inbound"),
-        ("160368","Swati Barman","inbound"),
-        ("TDAH1671","Sonu waghde","inbound"),
-        ("160299","Savita Uikey","inbound"),
-        ("160401","Pooja Sisodiya","inbound"),
-        ("160418","Shiva Rai","inbound"),
-        ("TDAH2932","Deepika Jhade","inbound"),
-        ("160502","Khushi Thakur","inbound"),
-        ("160433","Megha Rani Parmar","inbound"),
-        ("160458","Harshit Patidar","inbound"),
-        ("160459","Umashankar Kumawat","inbound"),
-        ("TDAH2899","Sunita Jadhaw","inbound"),
-        ("160493","Tosif","inbound"),
-        ("160494","Mahendra Pal","inbound"),
-        ("160495","Pankaj","inbound"),
-        ("TDAH2939","Sabju Pal","inbound"),
-        ("160438","Sunil Baghel","inbound"),
-        ("160250","Arti Vishwakarma","inbound"),
-        ("160272","Sheetal Osari","inbound"),
-        ("160300","Anupma Mishra","inbound"),
-        ("160304","Varsha Dhakad","inbound"),
-        ("160367","Mukesh Sastiya","inbound"),
-        ("160427","Ashish Gadhekar","inbound"),
-        ("160434","Gourav Mishra","inbound"),
-        ("160461","Ritik Kourav","inbound"),
-        ("160472","Priyanka Sharma","inbound"),
-        ("160473","Nilesh","inbound"),
-        ("160478","Vaishali Patle","inbound"),
-        ("TDAH1784","Ankit Yadav","inbound"),
-        ("TDAH2576","Anjali Yadav","inbound"),
-        ("160491","Shireesh Katare","inbound"),
-        ("170085","Diksha Shriwastav","inbound"),
-        ("160503","Tameshwari Patle","inbound"),
-        ("160504","Manish Joshi","inbound"),
-
-        ("160385","Vaishnavi Saner","outbound"),
-        ("170049","Shivangi Verma","outbound"),
-        ("170111","Ritika Tiwari","outbound"),
-        ("TDAH1613","Vaishali Nandeshwar","outbound"),
-        ("160261","Pankaj Chidar","outbound"),
-        ("170092","Swadesh Singhasiya","outbound"),
-        ("170109","Mastram Patel","outbound")
-    ]
-
-    con = get_db()
-    cur = con.cursor()
-
-    for emp,name,role in agents:
-        cur.execute("""
-        INSERT OR IGNORE INTO users(emp_id,name,password,role)
-        VALUES(?,?,?,?)
-        """,(emp,name,DEFAULT_PASSWORD,role))
-
-    con.commit()
-    con.close()
-
-create_agents()
-
-# ---------------- ROOT ----------------
+# ---------------- HOME ----------------
 @app.route("/")
 def home():
     return redirect("/login")
 
 # ---------------- LOGIN ----------------
-@app.route("/login", methods=["GET","POST"])
+@app.route("/login",methods=["GET","POST"])
 def login():
     error=""
     if request.method=="POST":
@@ -180,14 +104,105 @@ def dashboard():
     con=get_db()
     cur=con.cursor()
     cur.execute("""
-    SELECT g.*
-    FROM groups g
+    SELECT g.* FROM groups g
     JOIN group_members m ON g.id=m.group_id
     WHERE m.emp_id=?
     """,(session["emp_id"],))
     groups=cur.fetchall()
     con.close()
     return render_template("dashboard.html",groups=groups)
+
+# ---------------- GROUP CHAT ----------------
+@app.route("/group_chat/<gid>",methods=["GET","POST"])
+def group_chat(gid):
+    con=get_db()
+    cur=con.cursor()
+
+    if request.method=="POST":
+        msg=request.form["message"]
+        cur.execute("""
+        INSERT INTO group_messages(group_id,sender,message,time)
+        VALUES(?,?,?,?)
+        """,(gid,session["name"],msg,str(datetime.now())))
+        con.commit()
+
+    cur.execute("SELECT * FROM group_messages WHERE group_id=?",(gid,))
+    chats=cur.fetchall()
+    con.close()
+
+    return render_template("group_chat.html",chats=chats)
+
+# ---------------- GROUPS (ADMIN) ----------------
+@app.route("/groups",methods=["GET","POST"])
+def groups():
+    if session.get("role")!="admin":
+        return "Unauthorized"
+
+    con=get_db()
+    cur=con.cursor()
+
+    if request.method=="POST":
+        gname=request.form["gname"]
+        cur.execute("INSERT INTO groups(group_name) VALUES(?)",(gname,))
+        con.commit()
+
+    cur.execute("SELECT * FROM groups")
+    groups=cur.fetchall()
+    con.close()
+    return render_template("groups.html",groups=groups)
+
+# ---------------- ADD MEMBER ----------------
+@app.route("/add_member/<gid>",methods=["POST"])
+def add_member(gid):
+    emp=request.form["emp"]
+    con=get_db()
+    cur=con.cursor()
+    cur.execute("INSERT INTO group_members(group_id,emp_id) VALUES(?,?)",(gid,emp))
+    con.commit()
+    con.close()
+    return redirect("/groups")
+
+# ---------------- MANAGE USERS ----------------
+@app.route("/manage_users",methods=["GET","POST"])
+def manage_users():
+    if session.get("role")!="admin":
+        return "Unauthorized"
+
+    con=get_db()
+    cur=con.cursor()
+
+    if request.method=="POST":
+        emp=request.form["emp"]
+        name=request.form["name"]
+        role=request.form["role"]
+        cur.execute("""
+        INSERT INTO users(emp_id,name,password,role)
+        VALUES(?,?,?,?)
+        """,(emp,name,DEFAULT_PASSWORD,role))
+        con.commit()
+
+    cur.execute("SELECT * FROM users")
+    users=cur.fetchall()
+    con.close()
+    return render_template("manage_users.html",users=users)
+
+# ---------------- RESET PASSWORD ----------------
+@app.route("/reset_password/<emp>")
+def reset_password(emp):
+    con=get_db()
+    cur=con.cursor()
+    cur.execute("UPDATE users SET password=? WHERE emp_id=?",(DEFAULT_PASSWORD,emp))
+    con.commit()
+    con.close()
+    return redirect("/manage_users")
+
+# ---------------- COMPOSE MAIL ----------------
+@app.route("/compose_mail",methods=["GET","POST"])
+def compose_mail():
+    msg=""
+    if request.method=="POST":
+        msg="Mail sent successfully (Demo Mode)"
+    return render_template("compose_mail.html",msg=msg)
 
 # ---------------- LOGOUT ----------------
 @app.route("/logout")
@@ -197,5 +212,5 @@ def logout():
 
 # ---------------- RUN ----------------
 if __name__=="__main__":
-    port=int(os.environ.get("PORT",5000))
+    port=int(os.environ.get("PORT",10000))
     app.run(host="0.0.0.0",port=port)
