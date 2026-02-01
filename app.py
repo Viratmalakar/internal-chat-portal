@@ -56,7 +56,7 @@ def init_db():
 
 init_db()
 
-# --------- CREATE ADMIN ----------
+# -------- CREATE DEFAULT ADMIN ----------
 def create_admin():
     con = get_db()
     cur = con.cursor()
@@ -119,6 +119,66 @@ def dashboard():
     con.close()
     return render_template("dashboard.html",groups=groups)
 
+# ---------------- GROUP CHAT ----------------
+@app.route("/group_chat/<gid>",methods=["GET","POST"])
+def group_chat(gid):
+    con=get_db()
+    cur=con.cursor()
+
+    if request.method=="POST":
+        msg=request.form["message"]
+        cur.execute("""
+        INSERT INTO group_messages(group_id,sender,message,time)
+        VALUES(?,?,?,?)
+        """,(gid,session["name"],msg,str(datetime.now())))
+        con.commit()
+
+    cur.execute("""
+    SELECT * FROM group_messages
+    WHERE group_id=?
+    ORDER BY id ASC
+    """,(gid,))
+    chats=cur.fetchall()
+    con.close()
+
+    return render_template("group_chat.html",chats=chats)
+
+# ---------------- MANAGE GROUPS (ADMIN) ----------------
+@app.route("/groups",methods=["GET","POST"])
+def groups():
+    if session.get("role")!="admin":
+        return "Unauthorized"
+
+    con=get_db()
+    cur=con.cursor()
+
+    if request.method=="POST":
+        gname=request.form["gname"]
+        cur.execute("INSERT INTO groups(group_name) VALUES(?)",(gname,))
+        con.commit()
+
+    cur.execute("SELECT * FROM groups")
+    groups=cur.fetchall()
+    con.close()
+
+    return render_template("groups.html",groups=groups)
+
+# ---------------- ADD MEMBER ----------------
+@app.route("/add_member/<gid>",methods=["POST"])
+def add_member(gid):
+    emp=request.form["emp"]
+
+    con=get_db()
+    cur=con.cursor()
+    cur.execute("""
+    INSERT INTO group_members(group_id,emp_id)
+    VALUES(?,?)
+    """,(gid,emp))
+    con.commit()
+    con.close()
+
+    return redirect("/groups")
+
 # ---------------- MANAGE USERS ----------------
 @app.route("/manage_users",methods=["GET","POST"])
 def manage_users():
@@ -150,11 +210,13 @@ def manage_users():
 def update_role():
     emp=request.form["emp"]
     role=request.form["role"]
+
     con=get_db()
     cur=con.cursor()
     cur.execute("UPDATE users SET role=? WHERE emp_id=?",(role,emp))
     con.commit()
     con.close()
+
     return redirect("/manage_users")
 
 # -------- RESET PASSWORD ----------
@@ -165,6 +227,7 @@ def reset_password(emp):
     cur.execute("UPDATE users SET password=? WHERE emp_id=?",(DEFAULT_PASSWORD,emp))
     con.commit()
     con.close()
+
     return redirect("/manage_users")
 
 # ---------------- LOGOUT ----------------
