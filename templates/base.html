@@ -1,31 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Portal</title>
+<title>Internal Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
+
 <h2>PORTAL</h2>
 
-<a href="/dashboard">My Groups</a>
+<a href="/dashboard">📂 My Groups</a>
 
 {% if session['role']=="admin" %}
-<a href="/groups">Manage Groups</a>
+<a href="/groups">👥 Manage Groups</a>
+<a href="/manage_users">🧑 Manage Users</a>
+<a href="/settings">⚙ External Email Settings</a>
 {% endif %}
 
-<a href="/logout">Logout</a>
+<a href="/compose_mail">📧 External Mail</a>
+<a href="/logout">🚪 Logout</a>
+
 </div>
 
+<!-- MAIN AREA -->
 <div class="main">
 
 <div class="topbar">
-Welcome {{session['name']}} | {{session['role']}}
+<b>Welcome:</b> {{session['name']}} |
+<b>Role:</b> {{session['role']}}
 </div>
 
 {% block content %}{% endblock %}
 
+</div>
+
+<!-- FOOTER -->
+<div style="
+position:fixed;
+bottom:5px;
+right:10px;
+font-size:12px;
+color:gray;">
+Powered by Chandan Malakar
 </div>
 
 </body>
