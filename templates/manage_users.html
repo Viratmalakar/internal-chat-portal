@@ -1,1 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Manage Users</h2>
+
+<form method="post">
+<input name="emp" placeholder="Employee ID" required>
+<input name="name" placeholder="Name" required>
+<input name="pwd" placeholder="Password" required>
+
+<select name="role">
+<option value="support">Support</option>
+<option value="inbound">Inbound</option>
+<option value="outbound">Outbound</option>
+<option value="admin">Admin</option>
+</select>
+
+<button>Add User</button>
+</form>
+
+<hr>
+
+<table border="1">
+<tr>
+<th>ID</th><th>Name</th><th>Role</th><th>Change Role</th>
+</tr>
+
+{% for u in users %}
+<tr>
+<td>{{u.emp_id}}</td>
+<td>{{u.name}}</td>
+<td>{{u.role}}</td>
+<td>
+<a href="/change_role/{{u.emp_id}}/admin">Admin</a> |
+<a href="/change_role/{{u.emp_id}}/support">Support</a> |
+<a href="/change_role/{{u.emp_id}}/inbound">Inbound</a> |
+<a href="/change_role/{{u.emp_id}}/outbound">Outbound</a>
+</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}
 
