@@ -1,1 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Create Group</h2>
+
+<form method="post">
+<input name="gname" placeholder="Group Name" required>
+<button>Create</button>
+</form>
+
+<hr>
+
+<h2>Existing Groups</h2>
+
+{% for g in groups %}
+<div style="background:white;padding:10px;margin:5px;">
+<b>{{g.group_name}}</b>
+
+<form action="/add_member/{{g.id}}" method="post">
+<input name="emp" placeholder="Employee ID">
+<button>Add Member</button>
+</form>
+
+</div>
+{% endfor %}
+
+{% endblock %}
 
