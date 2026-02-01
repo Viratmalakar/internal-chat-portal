@@ -1,56 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>BFIL Portal</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal</title>
 <link rel="stylesheet" href="/static/style.css">
 </head>
-
 <body>
 
-<!-- MOBILE MENU BUTTON -->
-<div class="menu-btn" onclick="toggleMenu()">☰</div>
+<div class="sidebar">
+<h2>PORTAL</h2>
 
-<!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-<h2>BFIL</h2>
+<a href="/dashboard">Dashboard</a>
 
-<a href="/dashboard">📥 Inbox</a>
-<a href="/sent">📤 Sent</a>
-<a href="/compose">✍ Compose</a>
-<a href="/chat">💬 Chat</a>
-<a href="/download_chats">⬇ Download Chats</a>
-<a href="/logout">🚪 Logout</a>
+{% if session['role']=="admin" %}
+<a href="/manage_users">Manage Users</a>
+{% endif %}
 
+<a href="/logout">Logout</a>
 </div>
 
-<!-- MAIN CONTENT -->
 <div class="main">
 
 <div class="topbar">
-<span>Internal Communication Portal</span>
-<span>Welcome {{session['user']}}</span>
+Welcome {{session['name']}} |
+Role: {{session['role']}}
 </div>
 
 {% block content %}{% endblock %}
 
 </div>
-
-<!-- FOOTER -->
-<div style="
-position:fixed;
-bottom:5px;
-right:10px;
-font-size:12px;
-color:gray;">
-Powered by Chandan Malakar
-</div>
-
-<script>
-function toggleMenu(){
- document.getElementById("sidebar").classList.toggle("show");
-}
-</script>
 
 </body>
 </html>
