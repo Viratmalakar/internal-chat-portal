@@ -8,32 +8,42 @@
 
 <body>
 
+<!-- MOBILE MENU BUTTON -->
 <div class="menu-btn" onclick="toggleMenu()">☰</div>
 
+<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
 <h2>BFIL</h2>
 
 <a href="/dashboard">📥 Inbox</a>
 <a href="/sent">📤 Sent</a>
 <a href="/compose">✍ Compose</a>
-<a href="/change_password">🔑 Change Password</a>
-<a href="/manage_agents">👥 Manage Agents</a>
+<a href="/chat">💬 Chat</a>
+<a href="/download_chats">⬇ Download Chats</a>
+<a href="/logout">🚪 Logout</a>
 
 </div>
 
+<!-- MAIN CONTENT -->
 <div class="main">
+
 <div class="topbar">
 <span>Internal Communication Portal</span>
-
-<span class="notify">
-{% if unread and unread>0 %}
-🔔 {{unread}} New
-{% endif %}
-</span>
-
+<span>Welcome {{session['user']}}</span>
 </div>
 
 {% block content %}{% endblock %}
+
+</div>
+
+<!-- FOOTER -->
+<div style="
+position:fixed;
+bottom:5px;
+right:10px;
+font-size:12px;
+color:gray;">
+Powered by Chandan Malakar
 </div>
 
 <script>
