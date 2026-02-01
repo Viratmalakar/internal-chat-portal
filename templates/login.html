@@ -1,74 +1,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Internal Portal Login</title>
+<title>Login</title>
 
 <style>
 body{
-background:#f3f6fb;
+background:#1f2937;
 font-family:Segoe UI;
 }
-
 .box{
 width:360px;
 background:white;
 margin:120px auto;
-padding:40px;
+padding:35px;
 border-radius:10px;
-box-shadow:0 5px 25px rgba(0,0,0,0.2);
 text-align:center;
 }
-
-select,input,button{
+input,select,button{
 width:100%;
 padding:12px;
-margin-top:12px;
-border-radius:6px;
-border:1px solid #cbd5e1;
+margin-top:10px;
 }
-
 button{
 background:#2563eb;
 color:white;
 border:none;
-font-size:15px;
 }
-
-.error{
-color:red;
-margin-top:10px;
-}
+.error{color:red;}
 </style>
 
 </head>
-
 <body>
 
 <div class="box">
-
-<h2>Internal Communication Portal</h2>
+<h2>Internal Portal Login</h2>
 
 <form method="post">
+<input name="emp" placeholder="Employee ID" required>
 
-<select name="campaign" required>
-<option value="">Select Campaign Type</option>
-<option>Inbound</option>
-<option>Outbound</option>
-<option>Support Staff</option>
+<input type="password" name="pwd" placeholder="Password" required>
+
+<select name="role" required>
+<option value="">Select Role</option>
+<option value="admin">Admin</option>
+<option value="support">Support</option>
+<option value="inbound">Inbound</option>
+<option value="outbound">Outbound</option>
 </select>
 
-<input type="text" name="loginid" placeholder="Login ID / Agent Name" required>
-
-<input type="password" name="password" placeholder="Password" required>
-
-<button type="submit">Login</button>
-
+<button>Login</button>
 </form>
 
-{% if error %}
-<div class="error">{{error}}</div>
-{% endif %}
-
+<p class="error">{{error}}</p>
 </div>
 
 </body>
