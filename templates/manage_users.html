@@ -6,9 +6,8 @@
 <form method="post">
 <input name="emp" placeholder="Employee ID" required>
 <input name="name" placeholder="Name" required>
-<input name="pwd" placeholder="Password" required>
 
-<select name="role">
+<select name="role" required>
 <option value="support">Support</option>
 <option value="inbound">Inbound</option>
 <option value="outbound">Outbound</option>
@@ -20,9 +19,13 @@
 
 <hr>
 
-<table border="1">
+<table border="1" width="100%">
 <tr>
-<th>ID</th><th>Name</th><th>Role</th><th>Change Role</th>
+<th>ID</th>
+<th>Name</th>
+<th>Role</th>
+<th>Change Role</th>
+<th>Password</th>
 </tr>
 
 {% for u in users %}
@@ -30,15 +33,25 @@
 <td>{{u.emp_id}}</td>
 <td>{{u.name}}</td>
 <td>{{u.role}}</td>
+
 <td>
-<a href="/change_role/{{u.emp_id}}/admin">Admin</a> |
-<a href="/change_role/{{u.emp_id}}/support">Support</a> |
-<a href="/change_role/{{u.emp_id}}/inbound">Inbound</a> |
-<a href="/change_role/{{u.emp_id}}/outbound">Outbound</a>
+<form action="/update_role" method="post">
+<input type="hidden" name="emp" value="{{u.emp_id}}">
+<select name="role">
+<option value="support">Support</option>
+<option value="inbound">Inbound</option>
+<option value="outbound">Outbound</option>
+<option value="admin">Admin</option>
+</select>
+<button>Update</button>
+</form>
+</td>
+
+<td>
+<a href="/reset_password/{{u.emp_id}}">Reset to 1962</a>
 </td>
 </tr>
 {% endfor %}
 </table>
 
 {% endblock %}
-
